@@ -17,6 +17,10 @@ dataset = load_dataset("yelp_review_full")
 # Load tokenizer and model
 model_name = "meta-llama/Llama-3.2-1B"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+tokenizer.pad_token = tokenizer.eos_token
+tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+
 model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=5, torch_dtype="auto")
 
 def preprocess_function(examples):
@@ -31,8 +35,8 @@ training_args = TrainingArguments(
     output_dir="./results",
     eval_strategy="epoch",
     save_strategy="epoch",
-    per_device_train_batch_size=8,
-    per_device_eval_batch_size=8,
+    per_device_train_batch_size=2,
+    per_device_eval_batch_size=2,
     num_train_epochs=3,
     logging_dir="./logs",
     logging_steps=500,
