@@ -19,12 +19,13 @@ model_name = "meta-llama/Llama-3.2-1B"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 tokenizer.pad_token = tokenizer.eos_token
-tokenizer.add_special_tokens({'pad_token': '[PAD]'})
 
 model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=5, torch_dtype="auto")
 
 def preprocess_function(examples):
-    return tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
+    encoding = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
+    encoding["labels"] = [label - 1 for label in examples["label"]]  # Convert 1-5 → 0-4
+    return encoding
 
 tokenized_datasets = dataset.map(preprocess_function, batched=True)
 small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
