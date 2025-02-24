@@ -21,6 +21,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
 
 model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=5, torch_dtype="auto")
+model.resize_token_embeddings(len(tokenizer))  # Ensure model recognizes new token
 
 def preprocess_function(examples):
     encoding = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
