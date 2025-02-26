@@ -43,8 +43,7 @@ training_args = TrainingArguments(
     logging_dir="./logs",
     logging_steps=500,
     load_best_model_at_end=True,
-    fp16=True,
-    tokenizer=tokenizer
+    fp16=True
 )
 
 # Define Trainer
@@ -54,6 +53,7 @@ trainer = Trainer(
     train_dataset=small_train_dataset,
     eval_dataset=small_eval_dataset,
     compute_metrics=compute_metrics,
+    tokenizer=tokenizer
 )
 
 # Train model
