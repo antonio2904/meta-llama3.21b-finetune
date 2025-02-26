@@ -44,6 +44,7 @@ training_args = TrainingArguments(
     logging_steps=500,
     load_best_model_at_end=True,
     fp16=True,
+    tokenizer=tokenizer
 )
 
 # Define Trainer
