@@ -26,7 +26,7 @@ model = AutoModelForSequenceClassification.from_pretrained(model_name, num_label
 model.resize_token_embeddings(len(tokenizer))  # Ensure model recognizes new token
 
 def preprocess_function(examples):
-    encoding = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
+    encoding = tokenizer(examples["text"], padding="longest", truncation=True, max_length=512)
     encoding["labels"] = [label - 1 for label in examples["label"]]  # Convert 1-5 → 0-4
     return encoding
 
