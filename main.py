@@ -22,7 +22,7 @@ tokenizer.pad_token = tokenizer.eos_token
 
 print(f"PAD Token: {tokenizer.pad_token}, PAD Token ID: {tokenizer.pad_token_id}")
 
-model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=5, torch_dtype=torch.float16)
+model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=5, torch_dtype=torch.bfloat16)
 model.config.pad_token_id = tokenizer.pad_token_id
 model.resize_token_embeddings(len(tokenizer))  # Ensure model recognizes new token
 
@@ -49,7 +49,7 @@ training_args = TrainingArguments(
     logging_steps=500,
     load_best_model_at_end=True,
     fp16=True,
-    bf16=False
+    bf16=True
 )
 
 # Define Trainer
