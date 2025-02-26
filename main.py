@@ -48,7 +48,8 @@ training_args = TrainingArguments(
     logging_dir="./logs",
     logging_steps=500,
     load_best_model_at_end=True,
-    fp16=True
+    fp16=True,
+    bf16=False
 )
 
 # Define Trainer
