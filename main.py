@@ -51,7 +51,7 @@ training_args = TrainingArguments(
     learning_rate=3e-5,  # Increase learning rate
     warmup_steps=500,  # Gradual learning rate increase
     weight_decay=0.01,  # Reduce overfitting
-    lr_scheduler_type="cosine"  # Helps stabilize training,
+    lr_scheduler_type="cosine",  # Helps stabilize training,
     gradient_accumulation_steps=8,
 )
 
