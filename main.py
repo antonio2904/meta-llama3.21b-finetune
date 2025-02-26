@@ -25,7 +25,7 @@ model.config.pad_token_id = tokenizer.pad_token_id
 model.resize_token_embeddings(len(tokenizer))  # Ensure model recognizes new token
 
 def preprocess_function(examples):
-    encoding = tokenizer(examples["text"], padding="longest", truncation=True, max_length=512)
+    encoding = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
     encoding["labels"] = [label - 1 for label in examples["label"]]  # Convert 1-5 → 0-4
     return encoding
 
@@ -40,14 +40,19 @@ training_args = TrainingArguments(
     output_dir="./results",
     eval_strategy="epoch",
     save_strategy="epoch",
-    per_device_train_batch_size=2,
-    per_device_eval_batch_size=2,
+    per_device_train_batch_size=4,
+    per_device_eval_batch_size=4,
     num_train_epochs=5,
     logging_dir="./logs",
     logging_steps=500,
     load_best_model_at_end=True,
     fp16=False,
-    bf16=True
+    bf16=True,
+    learning_rate=3e-5,  # Increase learning rate
+    warmup_steps=500,  # Gradual learning rate increase
+    weight_decay=0.01,  # Reduce overfitting
+    lr_scheduler_type="cosine"  # Helps stabilize training,
+    gradient_accumulation_steps=8,
 )
 
 # Define Trainer
