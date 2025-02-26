@@ -20,6 +20,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 tokenizer.pad_token = tokenizer.eos_token
 
+print(f"PAD Token: {tokenizer.pad_token}, PAD Token ID: {tokenizer.pad_token_id}")
+
 model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=5, torch_dtype="auto")
 model.resize_token_embeddings(len(tokenizer))  # Ensure model recognizes new token
 
