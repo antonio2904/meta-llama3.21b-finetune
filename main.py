@@ -53,7 +53,7 @@ trainer = Trainer(
     train_dataset=small_train_dataset,
     eval_dataset=small_eval_dataset,
     compute_metrics=compute_metrics,
-    tokenizer=tokenizer
+    processing_class=tokenizer
 )
 
 # Train model
