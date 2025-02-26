@@ -1,6 +1,6 @@
 import torch
 import transformers
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer, DataCollatorWithPadding
 from datasets import load_dataset
 import evaluate
 import numpy as np
@@ -32,6 +32,8 @@ tokenized_datasets = dataset.map(preprocess_function, batched=True)
 small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
 small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
 
+data_collator = DataCollatorWithPadding(tokenizer=tokenizer, pad_to_multiple_of=8)
+
 # Define training arguments
 training_args = TrainingArguments(
     output_dir="./results",
@@ -53,7 +55,8 @@ trainer = Trainer(
     train_dataset=small_train_dataset,
     eval_dataset=small_eval_dataset,
     compute_metrics=compute_metrics,
-    processing_class=tokenizer
+    processing_class=tokenizer,
+    data_collator=data_collator
 )
 
 # Train model
