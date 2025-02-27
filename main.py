@@ -88,7 +88,6 @@ training_args = TrainingArguments(
     logging_steps=500,
     load_best_model_at_end=True,
     fp16=True,
-    deepspeed="ds_config.json"  # Use DeepSpeed
 )
 
 # Define Trainer
