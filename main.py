@@ -67,7 +67,7 @@ def preprocess_function(examples):
     return encoding
 
 # Select a subset of 1000 samples for training and evaluation
-dataset["train"] = dataset["train"].select(range(2000))
+dataset["train"] = dataset["train"].select(range(5000))
 dataset["test"] = dataset["test"].select(range(1000))
 
 tokenized_datasets = dataset.map(preprocess_function, batched=True, batch_size=2)
