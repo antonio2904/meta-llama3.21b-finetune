@@ -83,11 +83,10 @@ training_args = TrainingArguments(
     save_strategy="epoch",
     per_device_train_batch_size=2,
     per_device_eval_batch_size=2,
-    num_train_epochs=5,
+    num_train_epochs=3,
     logging_dir="./logs",
-    logging_steps=500,
-    load_best_model_at_end=True,
-    fp16=True,
+    fp16=False,
+    bf16=True  # Use bfloat16 instead
 )
 
 # Define Trainer
@@ -105,6 +104,6 @@ trainer = Trainer(
 trainer.train()
 
 # Save model
-model.save_pretrained("./fine_tuned_llama3_yelp")
-tokenizer.save_pretrained("./fine_tuned_llama3_yelp")
+# model.save_pretrained("./fine_tuned_llama3_yelp")
+# tokenizer.save_pretrained("./fine_tuned_llama3_yelp")
 
