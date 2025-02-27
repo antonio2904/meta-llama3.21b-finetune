@@ -1,6 +1,7 @@
 import torch
 import transformers
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer, DataCollatorWithPadding
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer, DataCollatorWithPadding
+from peft import LoraConfig, get_peft_model
 from datasets import load_dataset
 import evaluate
 import numpy as np
@@ -15,14 +16,28 @@ def compute_metrics(eval_pred):
 dataset = load_dataset("yelp_review_full")
 
 # Load tokenizer and model
-model_name = "meta-llama/Llama-3.2-1B"
+model_name = "meta-llama/Llama-3.2-3B"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 tokenizer.pad_token = tokenizer.eos_token
 
-model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=5, torch_dtype=torch.bfloat16)
+model = AutoModelForCausalLM.from_pretrained(
+    MODEL_NAME,
+    load_in_8bit=True,  # Enable 8-bit quantization for efficiency
+    device_map="auto"  # Auto-distribute across GPUs
+)
 model.config.pad_token_id = tokenizer.pad_token_id
 model.resize_token_embeddings(len(tokenizer))  # Ensure model recognizes new token
+
+# LoRA Configuration
+lora_config = LoraConfig(
+    r=16,  # LoRA rank
+    lora_alpha=32,
+    lora_dropout=0.1,
+    bias="none",
+    task_type="CAUSAL_LM"
+)
+model = get_peft_model(model, lora_config)
 
 def preprocess_function(examples):
     encoding = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
