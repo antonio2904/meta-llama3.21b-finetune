@@ -45,11 +45,11 @@ lora_config = LoraConfig(
 model = get_peft_model(model, lora_config)
 
 def preprocess_function(examples):
-    encoding = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
+    encoding = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512, return_tensors="pt")
     encoding["labels"] = [label - 1 for label in examples["label"]]  # Convert 1-5 → 0-4
     return encoding
 
-tokenized_datasets = dataset.map(preprocess_function, batched=True)
+tokenized_datasets = dataset.map(preprocess_function, batched=True, batch_size=4)
 small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(5000))
 small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
 
@@ -68,10 +68,6 @@ training_args = TrainingArguments(
     load_best_model_at_end=True,
     fp16=False,
     bf16=True,
-    learning_rate=3e-5,  # Increase learning rate
-    warmup_steps=500,  # Gradual learning rate increase
-    weight_decay=0.01,  # Reduce overfitting
-    lr_scheduler_type="cosine",  # Helps stabilize training,
     gradient_accumulation_steps=8,
 )
 
