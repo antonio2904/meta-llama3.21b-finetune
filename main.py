@@ -1,6 +1,6 @@
 import torch
 import transformers
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer, DataCollatorWithPadding
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer, DataCollatorWithPadding, BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model
 from datasets import load_dataset
 import evaluate
@@ -21,9 +21,14 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 tokenizer.pad_token = tokenizer.eos_token
 
+# Configure BitsAndBytes quantization
+quantization_config = BitsAndBytesConfig(
+    load_in_8bit=True  # Enable 8-bit quantization for efficiency
+)
+
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    load_in_8bit=True,  # Enable 8-bit quantization for efficiency
+    quantization_config=quantization_config,
     device_map="auto"  # Auto-distribute across GPUs
 )
 model.config.pad_token_id = tokenizer.pad_token_id
