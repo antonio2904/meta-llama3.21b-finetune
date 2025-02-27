@@ -22,7 +22,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
 
 model = AutoModelForCausalLM.from_pretrained(
-    MODEL_NAME,
+    model_name,
     load_in_8bit=True,  # Enable 8-bit quantization for efficiency
     device_map="auto"  # Auto-distribute across GPUs
 )
