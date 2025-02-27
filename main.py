@@ -26,9 +26,10 @@ quantization_config = BitsAndBytesConfig(
     load_in_8bit=True  # Enable 8-bit quantization for efficiency
 )
 
-model = AutoModelForCausalLM.from_pretrained(
+model = AutoModelForSequenceClassification.from_pretrained(
     model_name,
     quantization_config=quantization_config,
+    num_labels=5,
     device_map="auto"  # Auto-distribute across GPUs
 )
 model.config.pad_token_id = tokenizer.pad_token_id
@@ -40,7 +41,7 @@ lora_config = LoraConfig(
     lora_alpha=32,
     lora_dropout=0.1,
     bias="none",
-    task_type="CAUSAL_LM"
+    task_type="SEQ_CLS"
 )
 model = get_peft_model(model, lora_config)
 
