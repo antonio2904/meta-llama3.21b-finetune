@@ -1,7 +1,7 @@
 import torch
 import transformers
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer, DataCollatorWithPadding, BitsAndBytesConfig
-from peft import LoraConfig, get_peft_model
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from datasets import load_dataset
 import evaluate
 import numpy as np
@@ -35,23 +35,39 @@ model = AutoModelForSequenceClassification.from_pretrained(
 model.config.pad_token_id = tokenizer.pad_token_id
 model.resize_token_embeddings(len(tokenizer))  # Ensure model recognizes new token
 
+# Prepare model for LoRA training
+model = prepare_model_for_kbit_training(model)
+
 # LoRA Configuration
 lora_config = LoraConfig(
     r=16,  # LoRA rank
     lora_alpha=32,
     lora_dropout=0.1,
     bias="none",
-    task_type="SEQ_CLS"
+    task_type="SEQ_CLS",
+    target_modules=["q_proj", "v_proj"]
 )
 model = get_peft_model(model, lora_config)
+
+# Print trainable parameters
+def print_trainable_parameters(model):
+    trainable_params = 0
+    all_param = 0
+    for _, param in model.named_parameters():
+        all_param += param.numel()
+        if param.requires_grad:
+            trainable_params += param.numel()
+    print(f"Trainable params: {trainable_params} / {all_param} ({100 * trainable_params / all_param:.2f}%)")
+
+print_trainable_parameters(model)
 
 def preprocess_function(examples):
     encoding = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512, return_tensors="pt")
     encoding["labels"] = [label - 1 for label in examples["label"]]  # Convert 1-5 → 0-4
     return encoding
 
-tokenized_datasets = dataset.map(preprocess_function, batched=True, batch_size=4)
-small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(5000))
+tokenized_datasets = dataset.map(preprocess_function, batched=True, batch_size=2)
+small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
 small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer, pad_to_multiple_of=8)
@@ -61,15 +77,14 @@ training_args = TrainingArguments(
     output_dir="./results",
     eval_strategy="epoch",
     save_strategy="epoch",
-    per_device_train_batch_size=4,
-    per_device_eval_batch_size=4,
+    per_device_train_batch_size=2,
+    per_device_eval_batch_size=2,
     num_train_epochs=5,
     logging_dir="./logs",
     logging_steps=500,
     load_best_model_at_end=True,
-    fp16=False,
-    bf16=True,
-    gradient_accumulation_steps=8,
+    fp16=True,
+    deepspeed="ds_config.json"  # Use DeepSpeed
 )
 
 # Define Trainer
