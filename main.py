@@ -66,9 +66,13 @@ def preprocess_function(examples):
     encoding["labels"] = [label - 1 for label in examples["label"]]  # Convert 1-5 → 0-4
     return encoding
 
+# Select a subset of 1000 samples for training and evaluation
+dataset["train"] = dataset["train"].select(range(2000))
+dataset["test"] = dataset["test"].select(range(1000))
+
 tokenized_datasets = dataset.map(preprocess_function, batched=True, batch_size=2)
-small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
-small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
+small_train_dataset = tokenized_datasets["train"]
+small_eval_dataset = tokenized_datasets["test"]
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer, pad_to_multiple_of=8)
 
