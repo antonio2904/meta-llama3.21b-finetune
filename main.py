@@ -1,6 +1,6 @@
 import torch
 import transformers
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer, DataCollatorWithPadding, BitsAndBytesConfig
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer, DataCollatorWithPadding, BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model
 from datasets import load_dataset
 import evaluate
